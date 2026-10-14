@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
+  <title>푸드 패스포트: 중학 영어 문장 어순 탐험 (Word Order Game)</title>
+  <meta name="description" content="세계 전통 음식을 주제로 배우는 중학교 영어 문장 어순(주어+동사+that절 등) 인터랙티브 배열 게임입니다. 여권 스탬프를 모으며 영어 어순 감각을 익혀보세요!">
+  <meta name="keywords" content="중학교 영어, 영어 어순, 문장 배열, 영문법, 영어 게임, that절, 주어 동사">
+  <meta name="theme-color" content="#0F172A">
+  
+  <!-- Google Fonts: Plus Jakarta Sans & Outfit -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@500;700;800&family=Plus+Jakarta+Sans:wght@600;700;800&family=Special+Elite&display=swap" rel="stylesheet">
+  
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body data-current-tab="pro">
+  <!-- Spice Atmosphere Background Blobs -->
+  <div class="spice-decor-blurs" aria-hidden="true">
+    <div class="decor-blob blob-turmeric"></div>
+    <div class="decor-blob blob-chili"></div>
+    <div class="decor-blob blob-basil"></div>
+  </div>
+
+  <!-- Confetti Canvas -->
+  <canvas id="confetti-canvas"></canvas>
+
+  <div class="app-container">
+    <!-- Header: Passport Cover Style -->
+    <header class="passport-header" role="banner">
+      <div class="header-top-row">
+        <div class="passport-emblem-wrap">
+          <div class="passport-gold-crest" aria-hidden="true">✈️</div>
+          <div class="passport-title-meta">
+            <h1>SPICE ROUTE FOOD PASSPORT</h1>
+            <p class="passport-subtitle">중학 영어 문장 어순 탐험 • 세계 전통 음식 어순 퍼즐</p>
+          </div>
+        </div>
+
+        <div class="header-actions">
+          <button id="sound-toggle-btn" class="btn-header-tool" type="button" aria-label="효과음 켜기/끄기">
+            <span id="sound-icon">🔊</span>
+            <span id="sound-text">효과음 ON</span>
+          </button>
+          <button id="open-passport-book-btn" class="btn-header-tool" type="button" aria-label="여권 스탬프북 열기">
+            <span>📕</span>
+            <span>스탬프북</span>
+            <span class="stamp-count-badge" id="header-stamp-badge">0/15</span>
+          </button>
+        </div>
+      </div>
+    </header>
+
+    <!-- Category Tabs: 찬성 / 중립 / 반대 -->
+    <nav class="category-nav-wrapper" aria-label="의견 입장 카테고리">
+      <div class="category-tabs" role="tablist">
+        <button class="tab-btn active" role="tab" id="tab-pro" data-tab="pro" aria-selected="true">
+          <span class="tab-icon">👍</span>
+          <span class="tab-label">찬성 입장</span>
+          <span class="tab-sub">건강 & 문화 가치</span>
+          <span class="tab-stat-pill" id="pro-stat-pill">0/5</span>
+        </button>
+        <button class="tab-btn" role="tab" id="tab-neutral" data-tab="neutral" aria-selected="false">
+          <span class="tab-icon">⚖️</span>
+          <span class="tab-label">중립 입장</span>
+          <span class="tab-sub">양면성 & 객관적 관찰</span>
+          <span class="tab-stat-pill" id="neutral-stat-pill">0/5</span>
+        </button>
+        <button class="tab-btn" role="tab" id="tab-con" data-tab="con" aria-selected="false">
+          <span class="tab-icon">👎</span>
+          <span class="tab-label">반대 입장</span>
+          <span class="tab-sub">나트륨 & 위생 우려</span>
+          <span class="tab-stat-pill" id="con-stat-pill">0/5</span>
+        </button>
+      </div>
+    </nav>
+
+    <!-- Progress Card -->
+    <section class="progress-card" aria-label="현재 카테고리 진행 상황">
+      <div class="progress-header-row">
+        <div class="progress-title-info">
+          <span id="category-badge-name" style="font-weight: 800; color: var(--color-basil-dark);">찬성 입장 진행도</span>
+          <span style="color: var(--color-ink-muted); font-size: 13px;">| 문항 <span id="current-q-index">1</span> / 5</span>
+        </div>
+        <div class="progress-pct-badge" id="category-progress-text">0% 완료 (0/5)</div>
+      </div>
+      <div class="progress-track" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0">
+        <div class="progress-fill" id="progress-fill-bar" style="width: 0%;"></div>
+      </div>
+      <div class="question-stepper-dots" id="question-dots" aria-label="문항 선택 바로가기">
+        <button class="step-dot active" data-index="0" aria-label="1번 문제">1</button>
+        <button class="step-dot" data-index="1" aria-label="2번 문제">2</button>
+        <button class="step-dot" data-index="2" aria-label="3번 문제">3</button>
+        <button class="step-dot" data-index="3" aria-label="4번 문제">4</button>
+        <button class="step-dot" data-index="4" aria-label="5번 문제">5</button>
+      </div>
+    </section>
+
+    <!-- Main Game Board: Passport Visa Stamp Card -->
+    <main class="board-card" id="game-board-card">
+      <!-- Passport Stamp Graphic Overlay (shown upon correct answer) -->
+      <div class="passport-stamp-overlay" id="stamp-overlay" aria-hidden="true">
+        <div class="stamp-inner-ring">
+          <span class="stamp-country-code" id="stamp-country-code">KOR</span>
+          <span class="stamp-status">VISA APPROVED</span>
+          <span class="stamp-date" id="stamp-date-text">2026 • IMMIGRATION</span>
+        </div>
+      </div>
+
+      <!-- Card Header: Country, Dish, and Hint Trigger -->
+      <div class="board-header-strip">
+        <div class="dish-badge-group">
+          <span class="country-pill" id="card-country-pill">🇰🇷 대한민국 (KOR)</span>
+          <h2 class="dish-name" id="card-dish-name">전통 김치 (Kimchi)</h2>
+        </div>
+        <div class="board-action-buttons">
+          <button id="btn-toggle-hint" class="btn-icon-subtle btn-hint-trigger" type="button" aria-expanded="false" aria-controls="hint-drawer">
+            <span>💡</span>
+            <span>어순 공식 힌트</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Korean Prompt Sentence -->
+      <section class="korean-prompt-box" aria-label="배열할 한국어 문장">
+        <div class="prompt-tag">
+          <span>🇰🇷 한국어 예시 문장</span>
+        </div>
+        <p class="prompt-text" id="korean-sentence-text">
+          많은 의사들은 김치를 먹는 것이 우리의 면역 체계를 강화한다고 믿는다.
+        </p>
+      </section>
+
+      <!-- Target Sentence Slot (배열 칸) -->
+      <section class="arrangement-section" aria-label="단어 조각 배열 칸">
+        <div class="section-label-row">
+          <span class="section-title">
+            <span>📥</span>
+            <span>배열 칸 (클릭 시 순서대로 추가되며, 배치된 조각을 클릭하면 취소됩니다)</span>
+          </span>
+          <div class="section-actions-inline">
+            <button id="btn-clear-slot" class="btn-link-action" type="button">비우기</button>
+          </div>
+        </div>
+        <div class="sentence-dropzone" id="sentence-dropzone" role="region" aria-live="polite">
+          <div class="dropzone-empty-hint" id="dropzone-empty-msg">
+            <span>👆</span>
+            <span>아래 단어 조각을 클릭하여 올바른 영어 어순으로 문장을 완성하세요</span>
+          </div>
+        </div>
+      </section>
+
+      <!-- Available Word Chunks Pool (단어 조각 모음) -->
+      <section class="pieces-section" aria-label="선택 가능한 단어 및 구 조각">
+        <div class="section-label-row">
+          <span class="section-title">
+            <span>🧩</span>
+            <span>단어(구) 조각 창고 (섞인 상태)</span>
+          </span>
+          <div class="pieces-guide-callout">
+            <span class="legend-badge">★ 노란색 = 주어+동사</span>
+          </div>
+        </div>
+        <div class="pieces-pool" id="pieces-pool" role="group">
+          <!-- Dynamically populated chunk buttons -->
+        </div>
+      </section>
+
+      <!-- Hint Panel (Sentence Structure Formula) -->
+      <section class="hint-drawer" id="hint-drawer" aria-hidden="true">
+        <div class="hint-drawer-header">
+          <div class="hint-badge-title">
+            <span>🧭</span>
+            <span>문장 구조 공식 & 어순 가이드</span>
+          </div>
+          <button id="btn-close-hint" class="btn-link-action" type="button">닫기 ✕</button>
+        </div>
+        <div class="formula-display-box">
+          <div class="formula-label">📐 핵심 문장 공식</div>
+          <div class="formula-content" id="hint-formula-text">
+            주어 + 동사 + that + [동명사 주어 + 동사 + 목적어]
+          </div>
+          <div class="formula-breakdown" id="hint-breakdown-text">
+            Many doctors(주어) + believe(동사) | that절: eating kimchi(주어) + strengthens(동사) + our immune system(목적어)
+          </div>
+        </div>
+        <div class="hint-chunk-tips" id="hint-chunk-tips">
+          <!-- Chunk hints -->
+        </div>
+      </section>
+
+      <!-- Feedback Banner (Correct / Incorrect) -->
+      <div class="feedback-banner" id="feedback-banner" role="status">
+        <div class="feedback-text-wrap">
+          <span class="feedback-icon-large" id="feedback-icon">✨</span>
+          <div>
+            <div class="feedback-msg-title" id="feedback-title">정답입니다!</div>
+            <div class="feedback-msg-sub" id="feedback-desc">여권에 비자 스탬프가 승인되었습니다.</div>
+          </div>
+        </div>
+        <button id="btn-listen-feedback" class="btn-icon-subtle" type="button" style="display: none;">
+          <span>🔊</span>
+          <span>원어민 발음 듣기</span>
+        </button>
+      </div>
+
+      <!-- TTS Pronunciation Bar -->
+      <div class="tts-player-card" id="tts-player-card">
+        <div class="tts-info">
+          <span>🎧</span>
+          <span id="tts-full-sentence">Many doctors believe that eating kimchi strengthens our immune system.</span>
+        </div>
+        <button id="btn-speak-sentence" class="btn-tts-listen" type="button">
+          <span>▶️ 발음 듣기</span>
+        </button>
+      </div>
+
+      <!-- Bottom Controls -->
+      <div class="bottom-controls-bar">
+        <div class="auxiliary-actions">
+          <button id="btn-shuffle-pool" class="btn-game btn-reset-order" type="button" title="조각을 다시 섞습니다">
+            <span>🔀</span>
+            <span>조각 섞기</span>
+          </button>
+          <button id="btn-reset-current" class="btn-game btn-reset-order" type="button" title="처음 상태로 되돌립니다">
+            <span>🔄</span>
+            <span>다시 풀기</span>
+          </button>
+        </div>
+
+        <div class="primary-actions">
+          <button id="btn-check-answer" class="btn-game btn-check-answer" type="button">
+            <span>🎯</span>
+            <span>정답 확인</span>
+          </button>
+          <button id="btn-next-question" class="btn-game btn-next-question" type="button">
+            <span>다음 여행지로 ✈️</span>
+          </button>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <!-- Passport Stamps Collection Modal -->
+  <div class="modal-backdrop" id="passport-modal" role="dialog" aria-modal="true" aria-labelledby="modal-passport-title">
+    <div class="passport-book-modal">
+      <div class="modal-header-passport">
+        <div class="modal-title-wrap">
+          <h2 id="modal-passport-title">📕 나의 세계 전통 음식 탐험 여권</h2>
+          <p>정답을 맞힐 때마다 각 나라의 공식 비자 스탬프가 날인됩니다!</p>
+        </div>
+        <button id="btn-close-modal" class="btn-close-modal" type="button" aria-label="닫기">✕</button>
+      </div>
+      <div class="modal-content-scroll">
+        <div class="stamp-grid" id="stamp-book-grid">
+          <!-- Populated dynamically with 15 country stamps -->
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script type="module" src="app.js"></script>
+</body>
+</html>

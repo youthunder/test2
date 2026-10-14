@@ -1,0 +1,9 @@
+{
+  "name": "food-passport-english-word-order",
+  "version": "1.0.0",
+  "description": "중학교 영어 문장의 어순 탐험 인터랙티브 웹앱",
+  "type": "module",
+  "scripts": {
+    "start": "python -m http.server 8080"
+  }
+}
